@@ -4,10 +4,8 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
-  <!-- MindAR Image Tracking -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
@@ -17,8 +15,6 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-
-      /* 防止手机双指操作时缩放整个网页 */
       touch-action: none;
     }
 
@@ -26,10 +22,15 @@
       touch-action: none;
     }
 
-
     /* =========================================================
-       1. 开始体验界面
-    ========================================================= */
+    开始体验界面
+
+   position: fixed
+   固定覆盖整个屏幕
+
+   z-index,数值越大，通常越靠前
+   保证按钮显示在 AR 摄像头画面上方
+========================================================= */
 
     #startScreen {
       position: fixed;
@@ -48,8 +49,11 @@
       z-index: 9999;
     }
 
+
+    /* 开始体验按钮 */
     #startButton {
       padding: 16px 32px;
+
       font-size: 20px;
 
       border: none;
@@ -58,58 +62,87 @@
       cursor: pointer;
     }
 
-
     /* =========================================================
-       2. 博物馆信息卡
-    ========================================================= */
+   博物馆信息卡
+========================================================= */
 
     #infoPanel {
+
+      /* 初始状态不显示 */
       display: none;
 
+      /* 固定在手机屏幕上 */
       position: fixed;
 
       left: 20px;
       bottom: 25px;
 
+      /* 控制信息卡宽度 */
       max-width: 300px;
 
+      /* 内部留白 */
       padding: 14px 18px;
 
+      /* 半透明黑色背景 */
       background: rgba(0, 0, 0, 0.72);
+
+      /* 白色文字 */
       color: white;
 
+      /* 圆角 */
       border-radius: 10px;
 
+      /* 保证显示在 AR 画面上方 */
       z-index: 5000;
 
+      /* 字体 */
       font-family: Arial, "Microsoft YaHei", sans-serif;
+
       line-height: 1.6;
     }
 
+
+    /* 文物名称 */
+
     .objectTitle {
+
       font-size: 19px;
+
       font-weight: bold;
+
       margin-bottom: 6px;
     }
 
+
+    /* 文物基础信息 */
+
     .objectInfo {
+
       font-size: 14px;
+
       opacity: 0.9;
     }
 
-
     /* =========================================================
-       3. 开始探索提示
-    ========================================================= */
+    开始探索提示
+========================================================= */
 
     #explorePrompt {
+
+      /* 一开始不显示 */
       display: none;
 
+      /* 固定在屏幕上 */
       position: fixed;
 
       left: 50%;
       bottom: 30px;
 
+      /*
+     left: 50%
+     + translateX(-50%)
+     = 让提示框水平居中
+  */
       transform: translateX(-50%);
 
       width: 80%;
@@ -118,6 +151,7 @@
       padding: 15px 20px;
 
       background: rgba(0, 0, 0, 0.82);
+
       color: white;
 
       border-radius: 12px;
@@ -129,19 +163,37 @@
       z-index: 6000;
     }
 
+
+    /* “开始探索”标题 */
+
     .exploreTitle {
+
       font-size: 20px;
+
       font-weight: bold;
+
       margin-bottom: 6px;
     }
 
+
+    /* 探索说明文字 */
+
     .exploreText {
+
       font-size: 14px;
+
       line-height: 1.6;
+
       opacity: 0.9;
     }
 
+
+    /* =========================================================
+   开始探索按钮
+========================================================= */
+
     #exploreButton {
+
       margin-top: 12px;
 
       padding: 10px 24px;
@@ -149,61 +201,24 @@
       font-size: 16px;
 
       border: none;
+
       border-radius: 8px;
 
       cursor: pointer;
     }
-
-
-    /* =========================================================
-       4. 动物纹样信息卡
-
-       点击黄色 Hotspot 后显示。
-    ========================================================= */
-
-    #hotspotInfo {
-      display: none;
-
-      position: fixed;
-
-      right: 20px;
-      bottom: 25px;
-
-      width: min(280px, calc(100vw - 40px));
-
-      padding: 14px 18px;
-
-      background: rgba(0, 0, 0, 0.84);
-      color: white;
-
-      border-radius: 10px;
-
-      font-family: Arial, "Microsoft YaHei", sans-serif;
-
-      z-index: 7000;
-    }
-
-    #hotspotTitle {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    #hotspotText {
-      font-size: 14px;
-      line-height: 1.6;
-      opacity: 0.92;
-    }
   </style>
+
 </head>
 
 
 <body>
-
   <!-- =========================================================
-       开始体验
-  ========================================================= -->
+     开始体验按钮
 
+     手机浏览器通常不允许网页直接自动播放声音。
+     用户必须先进行一次点击，
+     浏览器才允许后面的背景音乐和语音播放。
+========================================================= -->
   <div id="startScreen">
     <button id="startButton">
       开始体验
@@ -212,26 +227,38 @@
 
 
   <!-- =========================================================
-       音频
-  ========================================================= -->
+     音频资源
 
-  <audio
-    id="bgMusic"
-    src="./background_music.mp3"
-    preload="auto"
-    loop>
+     bgMusic
+     背景音乐
+
+     narration
+     中文语音讲解
+
+     loop
+     背景音乐播放结束后自动重新播放
+
+     preload="auto"
+     浏览器提前加载音频，减少播放等待时间
+========================================================= -->
+
+  <audio id="bgMusic" src="./background_music.mp3" preload="auto" loop>
   </audio>
 
-  <audio
-    id="narration"
-    src="./narration_voice.mp3"
-    preload="auto">
+  <audio id="narration" src="./narration_voice.mp3" preload="auto">
   </audio>
 
 
   <!-- =========================================================
-       博物馆信息卡
-  ========================================================= -->
+     博物馆信息卡
+
+     作用：
+     当 Image Target 被识别后，
+     在屏幕上显示文物的基本信息。
+
+     自己制作项目时，
+     主要修改下面的文字内容。
+========================================================= -->
 
   <div id="infoPanel">
 
@@ -249,15 +276,27 @@
 
 
   <!-- =========================================================
-       开始探索
+     开始探索提示
 
-       中文讲解结束后出现。
+     初始状态隐藏。
 
-       点击按钮后：
-       1. 自动旋转停止
-       2. 开启拖动旋转 / 缩放
-       3. 显示 3 个动物纹样 Hotspots
-  ========================================================= -->
+     当中文语音讲解结束后，
+     JavaScript 会显示这个提示。
+
+     下一阶段：
+     点击「开始探索」后，
+     进入 3D 模型旋转与缩放交互。
+========================================================= -->
+
+  <!-- =========================================================
+     开始探索
+
+     中文讲解结束后显示。
+
+     用户点击按钮后：
+     1. 提示框消失
+     2. 自动旋转停止，启用手势交互
+========================================================= -->
 
   <div id="explorePrompt">
 
@@ -266,8 +305,8 @@
     </div>
 
     <div class="exploreText">
-      拖动模型进行旋转，使用鼠标滚轮或双指捏合进行缩放。<br>
-      点击黄色标记，发现饕餮、龙和鸟三种纹饰。
+      拖动模型进行旋转，<br>
+      使用鼠标滚轮或双指捏合进行放大与缩小。
     </div>
 
     <button id="exploreButton">
@@ -275,136 +314,95 @@
     </button>
 
   </div>
-
-
-  <!-- =========================================================
-       动物纹样说明卡
-  ========================================================= -->
-
-  <div id="hotspotInfo">
-
-    <div id="hotspotTitle">
-      纹饰名称
-    </div>
-
-    <div id="hotspotText">
-      纹饰说明
-    </div>
-
-  </div>
-
-
-  <!-- =========================================================
-       AR SCENE
-  ========================================================= -->
-
-  <a-scene
-    id="scene"
-    mindar-image="imageTargetSrc: ./targets.mind;"
-    color-space="sRGB"
-    renderer="colorManagement: true, physicallyCorrectLights"
-    vr-mode-ui="enabled: false"
+  <a-scene mindar-image="imageTargetSrc: ./targets.mind;" color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false">
 
-
-    <!-- =======================================================
-         相机
-
-         这一版不再使用 A-Frame cursor/raycaster 点击 Hotspot。
-
-         原因：
-         我们同时需要：
-         - 单指/鼠标拖动旋转
-         - 双指缩放
-         - 点击 Hotspot
-
-         因此直接使用 THREE.Raycaster，
-         在 pointerup 时判断用户是“点击”还是“拖动”。
-    ======================================================== -->
-
-    <a-camera
-      id="camera"
-      position="0 0 0"
-      look-controls="enabled: false">
+    <a-camera position="0 0 0" look-controls="enabled: false">
     </a-camera>
 
+    <a-entity id="target" mindar-image-target="targetIndex: 0">
 
-    <!-- Image Target -->
-    <a-entity
-      id="target"
-      mindar-image-target="targetIndex: 0">
+      <!-- =========================================================
+     3D 模型 + 自动旋转
 
+     结构分成两层：
 
-      <!-- =====================================================
-           MODEL ROOT：模型总控制节点
+     modelRoot：
+     控制整个文物的位置和大小。
 
-           position
-           = 模型整体位置
+     spinRoot：
+     专门负责自动旋转。
+========================================================= -->
 
-           scale
-           = 模型整体大小
-      ====================================================== -->
+      <!-- MODEL ROOT：控制模型整体位置与大小 -->
+      <a-entity id="modelRoot" position="0 0 0.1" scale="3 3 3">
 
-      <a-entity
-        id="modelRoot"
-        position="0 0 0.1"
-        scale="3 3 3">
+        <!--
+       AUTO ROTATION｜自动旋转
 
+       property: rotation
+       改变物体的旋转角度
 
-        <!-- ===================================================
-             SPIN ROOT：旋转控制节点
+       from: 0 0 0
+       从 0° 开始
 
-             讲解阶段：
-             自动旋转
+       to: 0 360 0
+       绕 Y 轴旋转一整圈 360°
 
-             开始探索后：
-             用户手动旋转
-        ==================================================== -->
+       loop: true
+       无限循环
 
-        <a-entity
-          id="spinRoot"
-          animation="
-            property: rotation;
-            from: 0 0 0;
-            to: 0 360 0;
-            loop: true;
-            dur: 10000;
-            easing: linear">
+       dur: 10000
+       一整圈需要 10,000 ms
+       10 秒
 
+       easing: linear
+       保持匀速旋转
+      -->
 
-          <!-- 3D MODEL｜3D 文物 -->
-          <a-gltf-model
-            src="./guang.glb"
-            position="0 0 0"
-            rotation="0 0 0">
+        <a-entity id="spinRoot" animation="
+      property: rotation;
+      from: 0 0 0;
+      to: 0 360 0;
+      loop: true;
+      dur: 10000;
+      easing: linear">
+
+          <!-- 3D 模型___相对于MODEL ROOT 的位置（局部坐标系）-->
+          <a-gltf-model src="./guang.glb" position="0 0 0" rotation="0 0 0">
           </a-gltf-model>
 
-
-
-
         </a-entity>
-        <!-- END spinRoot -->
-
 
       </a-entity>
-      <!-- END modelRoot -->
-
 
     </a-entity>
-    <!-- END target -->
-
 
   </a-scene>
-
 
   <script>
 
     /* =========================================================
-       1. 找到网页元素
+       音频交互控制
+    
+       整体逻辑：
+    
+       点击 "开始体验"
+       ↓
+       浏览器允许播放声音
+       ↓
+       扫描 Image Target
+       ↓
+       targetFound
+       ↓
+       背景音乐 + 中文讲解播放
     ========================================================= */
 
-    const scene =
-      document.querySelector("#scene");
+
+    /* ---------------------------------------------------------
+       1. 找到网页中的元素
+    --------------------------------------------------------- */
 
     const startScreen =
       document.querySelector("#startScreen");
@@ -430,43 +428,35 @@
     const exploreButton =
       document.querySelector("#exploreButton");
 
+    /* 3D 模型交互控制节点 */
     const modelRoot =
       document.querySelector("#modelRoot");
 
     const spinRoot =
       document.querySelector("#spinRoot");
-
-    const hotspotRoot =
-      document.querySelector("#hotspotRoot");
-
-    const hotspotInfo =
-      document.querySelector("#hotspotInfo");
-
-    const hotspotTitle =
-      document.querySelector("#hotspotTitle");
-
-    const hotspotText =
-      document.querySelector("#hotspotText");
-
-    const hotspotHits =
-      document.querySelectorAll(".hotspot-hit");
-
-    const camera =
-      document.querySelector("#camera");
-
-
-    /* =========================================================
-       2. 音量
-    ========================================================= */
+/* ---------------------------------------------------------
+       2. 设置音量
+    
+       volume 范围：
+    
+       0   = 静音
+       0.1 = 很低
+       0.5 = 中等
+       1   = 最大音量
+    
+       博物馆体验建议：
+       背景音乐低
+       讲解声音高
+    --------------------------------------------------------- */
 
     bgMusic.volume = 0.8;
 
     narration.volume = 1.0;
 
 
-    /* =========================================================
-       3. 体验状态
-    ========================================================= */
+    /* ---------------------------------------------------------
+       3. 记录体验状态
+    --------------------------------------------------------- */
 
     let experienceStarted = false;
 
@@ -477,127 +467,137 @@
     let exploring = false;
 
 
-    /* =========================================================
-       4. 开始体验
-    ========================================================= */
+    /* ---------------------------------------------------------
+       4. 用户点击「开始体验」
+    
+       这一步非常重要：
+    
+       手机浏览器要求用户先进行一次操作，
+       才允许网页播放声音。
+    
+       play → pause
+       是为了提前“解锁”两个音频。
+    --------------------------------------------------------- */
 
-    startButton.addEventListener(
-      "click",
-      async () => {
+    startButton.addEventListener("click", async () => {
 
-        try {
+      try {
 
-          /* 解锁背景音乐 */
+        /* 解锁背景音乐 */
 
-          bgMusic.muted = true;
+        bgMusic.muted = true;
 
-          await bgMusic.play();
+        await bgMusic.play();
 
-          bgMusic.pause();
+        bgMusic.pause();
 
-          bgMusic.currentTime = 0;
+        bgMusic.currentTime = 0;
 
-          bgMusic.muted = false;
-
-
-          /* 解锁中文讲解 */
-
-          narration.muted = true;
-
-          await narration.play();
-
-          narration.pause();
-
-          narration.currentTime = 0;
-
-          narration.muted = false;
-
-        }
-
-        catch (error) {
-
-          console.log(
-            "Audio unlock:",
-            error
-          );
-
-        }
+        bgMusic.muted = false;
 
 
-        experienceStarted = true;
+        /* 解锁语音讲解 */
 
+        narration.muted = true;
 
-        startScreen.style.display =
-          "none";
+        await narration.play();
 
+        narration.pause();
 
-        /*
-           如果用户点击开始按钮的时候，
-           Target 已经在镜头中：
-           立即播放音频。
-        */
+        narration.currentTime = 0;
 
-        if (targetVisible) {
-
-          playAudio();
-
-          infoPanel.style.display =
-            "block";
-
-        }
+        narration.muted = false;
 
       }
-    );
+
+      catch (error) {
+
+        console.log(
+          "Audio unlock:",
+          error
+        );
+
+      }
 
 
-    /* =========================================================
+      /* 记录：用户已经开始体验 */
+
+      experienceStarted = true;
+
+
+      /* 隐藏开始按钮 */
+
+      startScreen.style.display = "none";
+
+
+      /*
+         如果用户点击按钮的时候
+         Target 已经在摄像头里，
+         就立即播放音频。
+      */
+
+      if (targetVisible) {
+
+        playAudio();
+
+        infoPanel.style.display = "block";
+
+      }
+
+    });
+
+
+    /* ---------------------------------------------------------
        5. 播放音频
-    ========================================================= */
+    --------------------------------------------------------- */
 
     function playAudio() {
 
+      /*
+         如果用户还没有点击开始体验，
+         不允许播放。
+      */
+
       if (!experienceStarted) {
+
         return;
+
       }
 
 
-      /* 背景音乐 */
+      /* ---------- 背景音乐 ---------- */
 
-      bgMusic.play().catch(
-        (error) => {
+      bgMusic.play().catch((error) => {
 
-          console.log(
-            "Background music error:",
-            error
-          );
+        console.log(
+          "Background music error:",
+          error
+        );
 
-        }
-      );
+      });
 
 
-      /* 中文讲解 */
+      /* ---------- 中文讲解 ---------- */
 
       if (!narrationFinished) {
 
-        narration.play().catch(
-          (error) => {
+        narration.play().catch((error) => {
 
-            console.log(
-              "Narration error:",
-              error
-            );
+          console.log(
+            "Narration error:",
+            error
+          );
 
-          }
-        );
+        });
 
       }
 
     }
 
 
-    /* =========================================================
-       6. 识别到 Target
-    ========================================================= */
+    /* ---------------------------------------------------------
+       6. 当 MindAR 识别到 Target
+    --------------------------------------------------------- */
 
     target.addEventListener(
       "targetFound",
@@ -607,9 +607,10 @@
           "🎯 TARGET FOUND"
         );
 
-
         targetVisible = true;
 
+
+        /* 播放背景音乐和中文讲解 */
 
         playAudio();
 
@@ -618,51 +619,29 @@
 
         if (experienceStarted) {
 
-          infoPanel.style.display =
-            "block";
+          infoPanel.style.display = "block";
 
         }
+        /* 如果语音之前已经讲完，重新识别 Target 时，直接显示「开始探索」。*/
 
+        if (narrationFinished) {
 
-        /*
-           如果讲解已经结束，
-           但用户还没有点击“开始探索”，
-           则显示 Explore Prompt。
-        */
-
-        if (
-          narrationFinished &&
-          !exploring
-        ) {
-
-          explorePrompt.style.display =
-            "block";
+          explorePrompt.style.display = "block";
 
         }
-
-
-        /*
-           如果已经进入探索模式，
-           Target 重新出现时，
-           3 个 Hotspots 重新出现。
-        */
-
-        if (exploring) {
-
-          hotspotRoot.setAttribute(
-            "visible",
-            true
-          );
-
-        }
-
-      }
+}
     );
 
 
-    /* =========================================================
-       7. Target 离开镜头
-    ========================================================= */
+    /* ---------------------------------------------------------
+       7. 当 Target 离开摄像头
+    
+       暂停音频。
+    
+       注意：
+       这里不是重新开始，
+       下一次识别后会从暂停的位置继续播放。
+    --------------------------------------------------------- */
 
     target.addEventListener(
       "targetLost",
@@ -672,47 +651,40 @@
           "TARGET LOST"
         );
 
-
         targetVisible = false;
 
-
-        /* 暂停音频 */
-
+        /* 暂停声音 */
         bgMusic.pause();
 
         narration.pause();
 
+        /* 隐藏 Museum Label */
+        infoPanel.style.display = "none";
 
-        /* 隐藏 UI */
-
-        infoPanel.style.display =
-          "none";
-
-        explorePrompt.style.display =
-          "none";
-
-        hotspotInfo.style.display =
-          "none";
-
-
-        /* 隐藏动物纹 Hotspots */
-
-        hotspotRoot.setAttribute(
-          "visible",
-          false
-        );
-
-      }
+        /* 隐藏开始探索提示 */
+        explorePrompt.style.display = "none";
+}
     );
 
 
-    /* =========================================================
-       8. 中文讲解结束
-    ========================================================= */
+    /* ---------------------------------------------------------
+       8. 当 37 秒中文讲解结束
+    
+       暂时只记录状态。
+    
+       利用这个 ended 事件：
+    
+       narration ended,记录 narrationFinished = true
+       ↓
+       显示「开始探索」
+       
+    --------------------------------------------------------- */
 
     narration.addEventListener(
       "ended",
       () => {
+
+        /* 记录：讲解已经结束 */
 
         narrationFinished = true;
 
@@ -722,31 +694,34 @@
         );
 
 
+        /*
+           只有 Target 仍然在摄像头里时，
+           才显示「开始探索」。
+        */
+
         if (
           targetVisible &&
           !exploring
         ) {
 
-          explorePrompt.style.display =
-            "block";
+          explorePrompt.style.display = "block";
 
         }
 
       }
     );
 
+    /* ---------------------------------------------------------
+       开始探索 / 进入手势交互
 
-    /* =========================================================
-       9. 开始探索
-
-       点击按钮：
+       用户点击「开始探索」
        ↓
-       停止自动旋转
+       提示框消失
        ↓
-       显示 3 个动物纹 Hotspots
+       自动旋转停止
        ↓
-       开启手动旋转 / 缩放 / 点击
-    ========================================================= */
+       用户可以拖动旋转、滚轮/双指缩放
+    --------------------------------------------------------- */
 
     exploreButton.addEventListener(
       "click",
@@ -754,26 +729,14 @@
 
         exploring = true;
 
+        /* 隐藏开始探索提示 */
+        explorePrompt.style.display = "none";
 
-        explorePrompt.style.display =
-          "none";
-
-
-        /* 停止自动旋转 */
-
+        /* 停止自动旋转，并保留停止时的当前角度 */
         stopAutoRotation();
 
-
-        /* 显示 3 个动物纹 Hotspots */
-
-        hotspotRoot.setAttribute(
-          "visible",
-          true
-        );
-
-
         console.log(
-          "🔎 Exploration Started"
+          "🖐️ Gesture Interaction Started"
         );
 
       }
@@ -781,236 +744,30 @@
 
 
     /* =========================================================
-       10. 显示纹样说明
+       3D 模型手势控制
+
+       Desktop：
+       Mouse Drag  = Rotate
+       Mouse Wheel = Zoom
+
+       Mobile：
+       One Finger  = Rotate
+       Two Fingers = Pinch Zoom
+
+       只有点击「开始探索」以后，手势交互才启用。
     ========================================================= */
 
-    function showHotspotInfo(
-      hotspot
-    ) {
-
-      if (!hotspot) {
-        return;
-      }
-
-
-      const name =
-        hotspot.dataset.name;
-
-      const info =
-        hotspot.dataset.info;
-
-
-      hotspotTitle.textContent =
-        name;
-
-      hotspotText.textContent =
-        info;
-
-      hotspotInfo.style.display =
-        "block";
-
-
-      console.log(
-        "✅ HOTSPOT CLICKED:",
-        name
-      );
-
-    }
-
-
-    /* =========================================================
-       11. MANUAL THREE.JS HIT TEST
-           手动检测黄色 Hotspot 点击
-
-       为什么不用之前的 A-Frame click？
-
-       因为本项目同时有：
-       - Pointer Drag
-       - Pinch Zoom
-       - Hotspot Tap
-
-       我们直接在 Pointer Up 时：
-       1. 判断是不是“轻点”
-       2. 从用户点击位置发出 THREE.Raycaster
-       3. 检查是否碰到 3 个透明点击球
-
-       这样旋转和点击使用同一套 Pointer Events，
-       更容易控制冲突。
-    ========================================================= */
-
-    const hotspotRaycaster =
-      new THREE.Raycaster();
-
-    const pointerNDC =
-      new THREE.Vector2();
-
-
-    function hitTestHotspot(
-      clientX,
-      clientY
-    ) {
-
-      if (
-        !exploring ||
-        !targetVisible
-      ) {
-        return;
-      }
-
-
-      const canvas =
-        scene.canvas;
-
-      const threeCamera =
-        camera.getObject3D(
-          "camera"
-        );
-
-
-      if (
-        !canvas ||
-        !threeCamera
-      ) {
-        return;
-      }
-
-
-      const rect =
-        canvas.getBoundingClientRect();
-
-
-      /*
-         浏览器坐标
-         ↓
-         THREE.js Normalized Device Coordinates
-         范围：-1 到 +1
-      */
-
-      pointerNDC.x =
-        (
-          (
-            clientX -
-            rect.left
-          ) /
-          rect.width
-        ) * 2 - 1;
-
-
-      pointerNDC.y =
-        -(
-          (
-            clientY -
-            rect.top
-          ) /
-          rect.height
-        ) * 2 + 1;
-
-
-      hotspotRaycaster.setFromCamera(
-        pointerNDC,
-        threeCamera
-      );
-
-
-      /*
-         取出 3 个透明 Hit Area 中真正的 Mesh。
-
-         ownerMap：
-         用来记录某个 THREE.Mesh
-         属于哪一个 <a-sphere> Hotspot。
-      */
-
-      const hitMeshes = [];
-
-      const ownerMap =
-        new Map();
-
-
-      hotspotHits.forEach(
-        (hotspot) => {
-
-          hotspot.object3D.traverse(
-            (object) => {
-
-              if (object.isMesh) {
-
-                hitMeshes.push(
-                  object
-                );
-
-                ownerMap.set(
-                  object.uuid,
-                  hotspot
-                );
-
-              }
-
-            }
-          );
-
-        }
-      );
-
-
-      const intersections =
-        hotspotRaycaster.intersectObjects(
-          hitMeshes,
-          false
-        );
-
-
-      if (
-        intersections.length === 0
-      ) {
-
-        console.log(
-          "Tap: no hotspot"
-        );
-
-        return;
-      }
-
-
-      const clickedObject =
-        intersections[0].object;
-
-
-      const hotspot =
-        ownerMap.get(
-          clickedObject.uuid
-        );
-
-
-      showHotspotInfo(
-        hotspot
-      );
-
-    }
-
-
-    /* =========================================================
-       12. MODEL SCALE / ROTATION STATE
-    ========================================================= */
-
+    /* 当前模型大小：自动读取 modelRoot 的 scale */
     let currentScale =
-      modelRoot.getAttribute(
-        "scale"
-      ).x;
+      modelRoot.getAttribute("scale").x;
 
-
+    /* 当前 Y 轴旋转角度 */
     let currentRotationY = 0;
 
-
-    const initialScale =
-      currentScale;
-
-
-    const minScale =
-      initialScale * 0.5;
-
-
-    const maxScale =
-      initialScale * 7.0;
+    /* 缩放范围：初始大小的 0.5 倍到 7 倍 */
+    const initialScale = currentScale;
+    const minScale = initialScale * 0.5;
+    const maxScale = initialScale * 7.0;
 
 
     /* ---------------------------------------------------------
@@ -1019,22 +776,16 @@
 
     function stopAutoRotation() {
 
-      /*
-         先读取模型动画当前角度，
-         防止停止后跳回 0°。
-      */
-
+      /* 读取动画当前角度，避免停止后跳回 0° */
       currentRotationY =
         THREE.MathUtils.radToDeg(
           spinRoot.object3D.rotation.y
         );
 
+      /* 删除 A-Frame 自动旋转动画 */
+      spinRoot.removeAttribute("animation");
 
-      spinRoot.removeAttribute(
-        "animation"
-      );
-
-
+      /* 保持停止时的当前角度 */
       spinRoot.setAttribute(
         "rotation",
         `0 ${currentRotationY} 0`
@@ -1044,28 +795,19 @@
 
 
     /* ---------------------------------------------------------
-       设置模型大小
+       设置模型缩放
     --------------------------------------------------------- */
 
-    function setModelScale(
-      scale
-    ) {
+    function setModelScale(scale) {
 
+      /* 防止模型缩得太小或放得太大 */
       currentScale =
         Math.max(
           minScale,
-          Math.min(
-            maxScale,
-            scale
-          )
+          Math.min(maxScale, scale)
         );
 
-
-      /*
-         三个数字保持相同，
-         防止模型变形。
-      */
-
+      /* X / Y / Z 使用相同数值，避免模型变形 */
       modelRoot.setAttribute(
         "scale",
         `${currentScale} ${currentScale} ${currentScale}`
@@ -1075,120 +817,61 @@
 
 
     /* =========================================================
-       13. POINTER EVENTS：鼠标 + 手机触摸
-
-       Desktop：
-       Mouse Drag  = Rotate
-       Mouse Wheel = Zoom
-       Mouse Click = Hotspot
-
-       Mobile：
-       One Finger Drag = Rotate
-       Two Finger Pinch = Zoom
-       Tap = Hotspot
-
-       关键：
-       TAP_THRESHOLD 用来区分
-       “点击”和“拖动”。
+       POINTER EVENTS｜鼠标 + 触摸
     ========================================================= */
 
-    const activePointers =
-      new Map();
+    const activePointers = new Map();
+
+    let lastSingleX = null;
+    let pinchStartDistance = null;
+    let pinchStartScale = currentScale;
 
 
-    const pointerStarts =
-      new Map();
-
-
-    let lastSingleX =
-      null;
-
-
-    let pinchStartDistance =
-      null;
-
-
-    let pinchStartScale =
-      currentScale;
-
-
-    let multiTouchUsed =
-      false;
-
-
-    /*
-       如果手指/鼠标移动超过 8 px，
-       就认为是 Drag，而不是 Click。
-    */
-
-    const TAP_THRESHOLD =
-      8;
-
-
-    /* ---------------------------------------------------------
-       计算两个触点之间的距离
-    --------------------------------------------------------- */
-
+    /* 计算两个手指之间的距离 */
     function getPointerDistance() {
 
       const points =
-        Array.from(
-          activePointers.values()
-        );
+        Array.from(activePointers.values());
 
-
-      if (
-        points.length < 2
-      ) {
+      if (points.length < 2) {
         return 0;
       }
 
-
       const dx =
-        points[0].x -
-        points[1].x;
-
+        points[0].x - points[1].x;
 
       const dy =
-        points[0].y -
-        points[1].y;
-
+        points[0].y - points[1].y;
 
       return Math.sqrt(
-        dx * dx +
-        dy * dy
+        dx * dx + dy * dy
       );
 
     }
 
 
     /* ---------------------------------------------------------
-       POINTER DOWN
+       Pointer Down
     --------------------------------------------------------- */
 
     document.addEventListener(
       "pointerdown",
       (event) => {
 
+        /* 只有进入探索模式以后才允许控制模型 */
         if (!exploring) {
           return;
         }
 
-
-        /*
-           点击网页 UI 时，
-           不控制 3D 模型。
-        */
-
+        /* 点击 UI 区域时，不让模型跟着转 */
         if (
           event.target.closest &&
           event.target.closest(
-            "#startScreen, #explorePrompt, #infoPanel, #hotspotInfo"
+            "#startScreen, #explorePrompt, #infoPanel"
           )
         ) {
           return;
         }
-
 
         activePointers.set(
           event.pointerId,
@@ -1198,68 +881,21 @@
           }
         );
 
-
-        pointerStarts.set(
-          event.pointerId,
-          {
-            x: event.clientX,
-            y: event.clientY,
-            moved: false
-          }
-        );
-
-
-        /* 单触点 */
-
-        if (
-          activePointers.size === 1
-        ) {
-
-          lastSingleX =
-            event.clientX;
-
-          multiTouchUsed =
-            false;
-
+        /* 一个手指 / 鼠标：准备旋转 */
+        if (activePointers.size === 1) {
+          lastSingleX = event.clientX;
         }
 
-
-        /* 两个触点 */
-
-        if (
-          activePointers.size === 2
-        ) {
-
-          multiTouchUsed =
-            true;
-
-
-          /*
-             一旦使用双指，
-             本轮手势不再当作 Hotspot Click。
-          */
-
-          pointerStarts.forEach(
-            (start) => {
-
-              start.moved =
-                true;
-
-            }
-          );
-
+        /* 两个手指：记录捏合开始距离和模型大小 */
+        if (activePointers.size === 2) {
 
           pinchStartDistance =
             getPointerDistance();
 
-
           pinchStartScale =
             currentScale;
 
-
-          lastSingleX =
-            null;
-
+          lastSingleX = null;
         }
 
       }
@@ -1267,7 +903,7 @@
 
 
     /* ---------------------------------------------------------
-       POINTER MOVE
+       Pointer Move
     --------------------------------------------------------- */
 
     document.addEventListener(
@@ -1276,52 +912,12 @@
 
         if (
           !exploring ||
-          !activePointers.has(
-            event.pointerId
-          )
+          !activePointers.has(event.pointerId)
         ) {
           return;
         }
 
-
-        const start =
-          pointerStarts.get(
-            event.pointerId
-          );
-
-
-        /*
-           判断是否已经成为拖动操作。
-        */
-
-        if (start) {
-
-          const totalDx =
-            event.clientX -
-            start.x;
-
-
-          const totalDy =
-            event.clientY -
-            start.y;
-
-
-          if (
-            Math.hypot(
-              totalDx,
-              totalDy
-            ) >
-            TAP_THRESHOLD
-          ) {
-
-            start.moved =
-              true;
-
-          }
-
-        }
-
-
+        /* 更新当前手指/鼠标位置 */
         activePointers.set(
           event.pointerId,
           {
@@ -1331,33 +927,23 @@
         );
 
 
-        /* ===============================================
-           ONE POINTER：单指 / 鼠标拖动旋转
-        =============================================== */
-
+        /* ---------- 单指 / 鼠标拖动：旋转 ---------- */
         if (
           activePointers.size === 1 &&
           lastSingleX !== null
         ) {
 
           const dx =
-            event.clientX -
-            lastSingleX;
+            event.clientX - lastSingleX;
 
-
-          /*
-             0.4 = 旋转灵敏度
-          */
-
+          /* 0.4 是旋转灵敏度；数字越大转得越快 */
           currentRotationY +=
             dx * 0.4;
-
 
           spinRoot.setAttribute(
             "rotation",
             `0 ${currentRotationY} 0`
           );
-
 
           lastSingleX =
             event.clientX;
@@ -1365,10 +951,7 @@
         }
 
 
-        /* ===============================================
-           TWO POINTERS：双指捏合缩放
-        =============================================== */
-
+        /* ---------- 双指捏合：缩放 ---------- */
         if (
           activePointers.size === 2 &&
           pinchStartDistance
@@ -1376,19 +959,14 @@
 
           event.preventDefault();
 
-
           const newDistance =
             getPointerDistance();
 
-
           const ratio =
-            newDistance /
-            pinchStartDistance;
-
+            newDistance / pinchStartDistance;
 
           setModelScale(
-            pinchStartScale *
-            ratio
+            pinchStartScale * ratio
           );
 
         }
@@ -1401,102 +979,33 @@
 
 
     /* ---------------------------------------------------------
-       POINTER UP
-
-       这是本版最重要的修改：
-
-       如果 Pointer Down → Pointer Up
-       之间几乎没有移动，
-       就认为用户是在“点击”，
-       然后运行 Hotspot Hit Test。
+       Pointer Up / Cancel
     --------------------------------------------------------- */
 
-    function endPointer(
-      event
-    ) {
-
-      const start =
-        pointerStarts.get(
-          event.pointerId
-        );
-
-
-      const isSinglePointer =
-        activePointers.size === 1;
-
-
-      const isTap =
-        start &&
-        !start.moved &&
-        !multiTouchUsed &&
-        isSinglePointer;
-
-
-      /*
-         在删除 Pointer 状态之前，
-         先判断是否需要执行 Hotspot Click。
-      */
-
-      if (isTap) {
-
-        hitTestHotspot(
-          event.clientX,
-          event.clientY
-        );
-
-      }
-
+    function endPointer(event) {
 
       activePointers.delete(
         event.pointerId
       );
 
-
-      pointerStarts.delete(
-        event.pointerId
-      );
-
-
-      if (
-        activePointers.size === 1
-      ) {
+      if (activePointers.size === 1) {
 
         const remainingPointer =
           Array.from(
             activePointers.values()
           )[0];
 
-
         lastSingleX =
           remainingPointer.x;
 
-      }
+      } else {
 
-      else {
-
-        lastSingleX =
-          null;
+        lastSingleX = null;
 
       }
 
-
-      if (
-        activePointers.size < 2
-      ) {
-
-        pinchStartDistance =
-          null;
-
-      }
-
-
-      if (
-        activePointers.size === 0
-      ) {
-
-        multiTouchUsed =
-          false;
-
+      if (activePointers.size < 2) {
+        pinchStartDistance = null;
       }
 
     }
@@ -1507,16 +1016,15 @@
       endPointer
     );
 
-
     document.addEventListener(
       "pointercancel",
       endPointer
     );
 
 
-    /* =========================================================
-       14. 电脑滚轮缩放
-    ========================================================= */
+    /* ---------------------------------------------------------
+      电脑鼠标滚轮缩放
+    --------------------------------------------------------- */
 
     document.addEventListener(
       "wheel",
@@ -1526,26 +1034,18 @@
           return;
         }
 
-
         event.preventDefault();
 
-
-        if (
-          event.deltaY < 0
-        ) {
+        if (event.deltaY < 0) {
 
           /* 滚轮向上：放大 */
-
           setModelScale(
             currentScale * 1.10
           );
 
-        }
-
-        else {
+        } else {
 
           /* 滚轮向下：缩小 */
-
           setModelScale(
             currentScale * 0.90
           );
